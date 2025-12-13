@@ -172,9 +172,9 @@ end
 -- GetTeleportData(): Get teleport data
 -- @return { any }?
 function LocalData.GetTeleportData(): { [any]: any }?
-	local player = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
+	local FirstPlayer = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
 
-	local TeleportData = player:GetJoinData().TeleportData
+	local TeleportData = FirstPlayer:GetJoinData().TeleportData
 
 	return TeleportData
 end

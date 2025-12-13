@@ -304,9 +304,12 @@ local function _teleportPlayer(
 
 	local TeleportOptions = Instance.new("TeleportOptions")
 
-	TeleportOptions.ShouldReserveServer = true
-
 	TeleportOptions.ReservedServerAccessCode = reservation_code
+
+	TeleportOptions:SetTeleportData({
+		IsReservedServer = true,
+		ReservationCode = reservation_code
+	})
 
 	local success, err = pcall(function()
 		TeleportService:TeleportAsync(

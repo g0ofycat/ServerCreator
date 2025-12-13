@@ -17,6 +17,7 @@ local Types = require("../Utility/Types")
 --=======================
 
 local MemoryStoreService = game:GetService("MemoryStoreService")
+local Players = game:GetService("Players")
 
 --=======================
 -- // MEMORY STORES
@@ -301,11 +302,13 @@ end
 -- CheckIfReserved(): Checks if the server is reserved
 -- @return boolean: true if reserved, false otherwise
 function ServerLoader.CheckIfReserved(): boolean
-	if game.PrivateServerId ~= "" and game.PrivateServerOwnerId == 0 then
-		return true
+	local PlayerTeleportData = LocalData.GetTeleportData()
+
+	if not PlayerTeleportData then
+		return false
 	end
 
-	return false
+	return PlayerTeleportData.IsReservedServer
 end
 
 return ServerLoader
