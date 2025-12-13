@@ -1,0 +1,12 @@
+{
+  "name": "server_creator",
+  "tree": {
+    "$className": "DataModel",
+
+    "ReplicatedStorage": {
+      "ServerCreator": {
+        "$path": "src"
+      }
+    }
+  }
+}
