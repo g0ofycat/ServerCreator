@@ -282,6 +282,26 @@ local function _teleportPlayer(
 	place_id: number,
 	reservation_code: string
 ): Types.Result<boolean>
+	if LocalData.TeleportDebounces[player.UserId] then
+		return {
+			success = false,
+			data = nil,
+			error = "Player is already teleporting",
+			errorCode = Config.ERROR_CODES.DEBOUNCE_ACTIVE
+		}
+	end
+
+	if not player:IsDescendantOf(game) then
+		return {
+			success = false,
+			data = nil,
+			error = "Player has left the game",
+			errorCode = Config.ERROR_CODES.INVALID_PARAMETERS
+		}
+	end
+
+	LocalData.TeleportDebounces[player.UserId] = true
+
 	local teleport_data = {
 		ReservationCode = reservation_code
 	}
@@ -298,8 +318,14 @@ local function _teleportPlayer(
 		return true
 	end)
 
+	task.delay(Config.GENERAL.TeleportDebounce, function()
+		LocalData.TeleportDebounces[player.UserId] = nil
+	end)
+
 	if not success then
 		warn(`_teleportPlayer(): Failed to teleport player { player.UserId } to { reservation_code }: { err }`)
+
+		LocalData.TeleportDebounces[player.UserId] = nil
 
 		return {
 			success = false,
@@ -837,11 +863,20 @@ function ServerCreator.JoinServer(player: Player, code: string): Types.Result<bo
 		}
 	end
 
-	_teleportPlayer(player, Config.GENERAL.ServerPlaceId, code)
+	local teleportResult = _teleportPlayer(player, Config.GENERAL.ServerPlaceId, code)
+
+	if not teleportResult.success then
+		return {
+			success = false,
+			data = nil,
+			error = teleportResult.error,
+			errorCode = teleportResult.errorCode
+		}
+	end
 
 	return {
 		success = true,
-		data = nil,
+		data = true,
 		error = nil,
 		errorCode = nil
 	}
@@ -862,12 +897,22 @@ end
 -- @param code: The code of the server
 function ServerCreator.AttachListeners(code: string): ()
 	if not ServerLoader.CheckIfReserved() or LocalData.AttachmentsInitialized then return end
+	
+	if #Players:GetPlayers() == 0 then
+		LocalData.SyncActive = false
+
+		ServerCreator.ShutdownServer(code)
+		
+		return
+	end
 
 	Players.PlayerAdded:Connect(function()
 		ServerCreator.IncrementPlayerCount(code)
 	end)
 
-	Players.PlayerRemoving:Connect(function()
+	Players.PlayerRemoving:Connect(function(player)
+		LocalData.TeleportDebounces[player.UserId] = nil
+
 		ServerCreator.DecrementPlayerCount(code)
 	end)
 

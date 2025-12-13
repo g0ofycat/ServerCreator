@@ -16,8 +16,6 @@ local Types = require("../Utility/Types")
 -- // SERVICES
 --=======================
 
-local RunService = game:GetService("RunService")
-
 local MemoryStoreService = game:GetService("MemoryStoreService")
 
 --=======================

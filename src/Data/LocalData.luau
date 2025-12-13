@@ -19,6 +19,7 @@ local Types = require("../Utility/Types")
 --=======================
 
 LocalData.ServerCache = {} :: { [string]: Types.ServerCacheEntry }
+LocalData.TeleportDebounces = {} :: { [number]: boolean }
 LocalData.Debounces = {} :: { [number]: boolean }
 LocalData.ServerEntries = {} :: { [string]: Types.ServerData }
 LocalData.IDToCodeMap = {} :: { [string]: string }

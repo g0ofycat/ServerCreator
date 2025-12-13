@@ -12,8 +12,6 @@ local MessagingService = game:GetService("MessagingService")
 -- // MODULES
 --=======================
 
-local Types = require("../Utility/Types")
-
 local Config = require("../Utility/Config")
 
 local LocalData = require("../Data/LocalData")

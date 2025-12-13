@@ -32,6 +32,8 @@ return {
 		MaxServerNameLength = 50, -- // number: MAXIMUM LENGTH OF SERVER NAME
 		MaxDescriptionLength = 200, -- // number: MAXIMUM LENGTH OF SERVER DESCRIPTION
 
+		TeleportDebounce = 3, -- // number: TELEPORT DEBOUNCE
+
 		SyncRate = 30, -- // number: TIME IN SECONDS FOR SERVER INFO SYNC AND CACHE CLEANUP
 
 		ServerPlaceId = game.PlaceId -- // number: PLACE ID FOR RESERVED SERVERS
