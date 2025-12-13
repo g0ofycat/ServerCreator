@@ -302,17 +302,17 @@ local function _teleportPlayer(
 
 	LocalData.TeleportDebounces[player.UserId] = true
 
-	local teleport_data = {
-		ReservationCode = reservation_code
-	}
+	local TeleportOptions = Instance.new("TeleportOptions")
+
+	TeleportOptions.ShouldReserveServer = false
+
+	TeleportOptions.ReservedServerAccessCode = reservation_code
 
 	local success, err = pcall(function()
-		TeleportService:TeleportToPrivateServer(
+		TeleportService:TeleportAsync(
 			place_id,
-			reservation_code,
 			{ player },
-			nil,
-			teleport_data
+			TeleportOptions
 		)
 
 		return true
