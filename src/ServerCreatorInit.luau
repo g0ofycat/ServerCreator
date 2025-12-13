@@ -304,7 +304,7 @@ local function _teleportPlayer(
 
 	local TeleportOptions = Instance.new("TeleportOptions")
 
-	TeleportOptions.ShouldReserveServer = false
+	TeleportOptions.ShouldReserveServer = true
 
 	TeleportOptions.ReservedServerAccessCode = reservation_code
 
@@ -897,12 +897,12 @@ end
 -- @param code: The code of the server
 function ServerCreator.AttachListeners(code: string): ()
 	if not ServerLoader.CheckIfReserved() or LocalData.AttachmentsInitialized then return end
-	
+
 	if #Players:GetPlayers() == 0 then
 		LocalData.SyncActive = false
 
 		ServerCreator.ShutdownServer(code)
-		
+
 		return
 	end
 
