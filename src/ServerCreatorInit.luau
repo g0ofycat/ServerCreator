@@ -866,6 +866,15 @@ function ServerCreator.JoinServer(player: Player, code: string): Types.Result<bo
 		}
 	end
 
+	if not LocalData.ServerEntries[code] then
+		return {
+			success = false,
+			data = nil,
+			error = "Invalid Server Code",
+			errorCode = Config.ERROR_CODES.INVALID_PARAMETERS
+		}
+	end
+
 	local teleportResult = _teleportPlayer(player, Config.GENERAL.ServerPlaceId, code)
 
 	if not teleportResult.success then
