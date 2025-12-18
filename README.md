@@ -31,7 +31,7 @@ function ServerCreator.CreateServer(
 function ServerCreator.JoinServer(player: Player, code: string): Types.Result<boolean>
 ```
 
-3. **Update Servers**
+3. **Updating Servers**
 
 ```lua
 -- UpdateServer(): Updates an existing server's information
@@ -41,7 +41,7 @@ function ServerCreator.JoinServer(player: Player, code: string): Types.Result<bo
 function ServerCreator.UpdateServer(code: string, updated_table: Types.ModifiableData): Types.Result<Types.ServerData>
 ```
 
-4. **Filter Servers**
+4. **Filtering Servers**
 
 ```lua
 -- FilterServer(): Checks the servers that meet the predicate
