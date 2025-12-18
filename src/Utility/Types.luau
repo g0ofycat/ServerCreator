@@ -5,7 +5,6 @@
 --=======================
 
 export type ServerData = {
-	ServerId: string?,
 	Code: string,
 	OwnerUserId: number,
 	Name: string,
@@ -25,15 +24,22 @@ export type ServerListEntry = {
 	OwnerUserId: number
 }
 
---=======================
--- // CACHE TYPES
---=======================
-
-export type CacheEntry<T> = {
-	data: T
+export type ModifiableData = {
+	updated_code: string?,
+	updated_name: string?,
+	updated_description: string?,
+	updated_owner_id: number?
 }
 
-export type ServerCacheEntry = CacheEntry<ServerData>
+export type PredicateType = {
+	field: PredicateFields,
+	operator: PredicateOperators,
+	value: any
+}
+
+export type PredicateOperators = "==" | "~=" | ">" | "<" | ">=" | "<="
+
+export type PredicateFields = "Code" | "OwnerUserId" | "Name" | "Description" | "PlayerCount"
 
 --=======================
 -- // OPERATION TYPES
@@ -58,7 +64,6 @@ export type MessageType =
 | "ServerShutdown"
 
 export type ServerMessage = {
-	ServerId: string?,
 	Type: MessageType,
 	Code: string,
 	Timestamp: number,

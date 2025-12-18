@@ -18,11 +18,9 @@ local Types = require("../Utility/Types")
 -- // PUBLIC DATA
 --=======================
 
-LocalData.ServerCache = {} :: { [string]: Types.ServerCacheEntry }
+LocalData.ServerEntries = {} :: { [string]: Types.ServerData }
 LocalData.TeleportDebounces = {} :: { [number]: boolean }
 LocalData.Debounces = {} :: { [number]: boolean }
-LocalData.ServerEntries = {} :: { [string]: Types.ServerData }
-LocalData.IDToCodeMap = {} :: { [string]: string }
 
 LocalData.AttachmentsInitialized = false
 LocalData.SyncActive = false
@@ -52,45 +50,6 @@ end
 -- @param user_id: The user id to clear debounce for
 function LocalData.ClearDebounce(user_id: number): ()
 	LocalData.Debounces[user_id] = nil
-end
-
---=======================
--- // CACHE API
---=======================
-
--- GetCached(): Get cached server data if not expired
--- @param code: The code of the server entry to get
--- @return Types.ServerData?
-function LocalData.GetCached(code: string): Types.ServerData?
-	local cached = LocalData.ServerCache[code]
-
-	if not cached then
-		return nil
-	end
-
-	return cached.data
-end
-
--- SetCached(): Store server data in cache
--- @param code: The code of the server entry to cache
--- @param data: The server data to cache
-function LocalData.SetCached(code: string, data: Types.ServerData): ()
-	LocalData.ServerCache[code] = {
-		data = data
-	}
-end
-
--- ClearCached(): Clear from cache
--- @param code: The code of the server entry to clear
-function LocalData.ClearCached(code: string): ()
-	LocalData.ServerCache[code] = nil
-end
-
--- CleanupCache(): Clear all cache entries
-function LocalData.CleanupCache(): ()
-	for code, cached in LocalData.ServerCache do
-		LocalData.ServerCache[code] = nil
-	end
 end
 
 --=======================
@@ -133,18 +92,6 @@ end
 -- // UTILITY API
 --=======================
 
--- GetCachedCount(): Get the number of cached entries
--- @return number
-function LocalData.GetCachedCount(): number
-	local count = 0
-
-	for _ in LocalData.ServerCache do
-		count += 1
-	end
-
-	return count
-end
-
 -- GetServerEntryCount(): Get the number of server entries
 -- @return number
 function LocalData.GetServerEntryCount(): number
@@ -169,10 +116,29 @@ function LocalData.GetDebounceCount(): number
 	return count
 end
 
+-- IsPlayerInServer(): Checks if a user id is in the current server
+-- @param user_id: The user id to check
+-- @return boolean
+function LocalData.IsPlayerInServer(user_id: number): boolean
+	for _, player in Players:GetPlayers() do
+		if player.UserId == user_id then
+			return true
+		end
+	end
+
+	return false
+end
+
+-- GetFirstPlayer(): Gets the first player
+-- @return Player
+function LocalData.GetFirstPlayer(): Player
+	return Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
+end
+
 -- GetTeleportData(): Get teleport data
 -- @return { any }?
 function LocalData.GetTeleportData(): { [any]: any }?
-	local FirstPlayer = Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
+	local FirstPlayer = LocalData.GetFirstPlayer()
 
 	local TeleportData = FirstPlayer:GetJoinData().TeleportData
 

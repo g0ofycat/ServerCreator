@@ -18,8 +18,6 @@ return {
 	--=======================
 
 	CONSTS = {
-		PlaceId = game.PlaceId,
-		JobId = game.JobId,
 		PrivateServerId = game.PrivateServerId
 	},
 
@@ -34,7 +32,7 @@ return {
 
 		TeleportDebounce = 3, -- // number: TELEPORT DEBOUNCE
 
-		SyncRate = 30, -- // number: TIME IN SECONDS FOR SERVER INFO SYNC AND CACHE CLEANUP
+		SyncRate = 30, -- // number: TIME IN SECONDS FOR SERVER INFO SYNC
 
 		ServerPlaceId = game.PlaceId -- // number: PLACE ID FOR RESERVED SERVERS
 	},
@@ -50,7 +48,7 @@ return {
 		OnPlayerCountChanged = Signal.new() :: Signal.Signal, -- // Types.ServerMessage
 		OnServerShutdown = Signal.new() :: Signal.Signal, -- // Types.ServerMessage
 
-		OnServerIdChanged = Signal.new() :: Signal.Signal -- // Code: string
+		OnServerCodeChanged = Signal.new() :: Signal.Signal -- // Code: string
 	},
 
 	--=======================
@@ -59,7 +57,6 @@ return {
 
 	MEMORY_STORE = {
 		Expiration = 86400, -- // number: TIME IN SECONDS FOR SERVER INFO TO EXPIRE IN MEMORY STORE
-		CodeCacheExpiration = 30, -- // number: TIME IN SECONDS FOR CODE CACHE TO EXPIRE IN MEMORY STORE
 		BatchSize = 200 -- // number: "GetRangeAsync" BATCH SIZE FOR MEMORY STORE
 	},
 

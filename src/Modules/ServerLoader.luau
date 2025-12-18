@@ -17,7 +17,6 @@ local Types = require("../Utility/Types")
 --=======================
 
 local MemoryStoreService = game:GetService("MemoryStoreService")
-local Players = game:GetService("Players")
 
 --=======================
 -- // MEMORY STORES
@@ -45,20 +44,18 @@ local function _processServerEntry(entry: Types.ServerEntry): boolean
 	end
 
 	LocalData.SetServerEntry(entry.key, server_data)
-	LocalData.SetCached(entry.key, server_data)
 
 	return true
 end
 
 -- _cleanupStaleServers(): Removes servers that no longer exist in MemoryStore
 -- @param valid_codes: Table of valid server codes
-local function _cleanupStaleServers(valid_codes: { [string]: boolean })
+local function _cleanupStaleServers(valid_codes: { [string]: boolean }): ()
 	local removed_count = 0
 
 	for code, _ in LocalData.ServerEntries do
 		if not valid_codes[code] then
 			LocalData.RemoveServerEntry(code)
-			LocalData.ClearCached(code)
 			removed_count += 1
 		end
 	end
@@ -99,12 +96,6 @@ function ServerLoader.LoadAllServers(): Types.Result<{ Types.ServerData }>
 
 			table.insert(servers, server_data)
 			valid_codes[entry.key] = true
-
-			if server_data.ServerId then
-				LocalData.IDToCodeMap[server_data.ServerId] = server_data.Code
-			else
-				warn(`LoadAllServers(): Server { entry.key } missing ServerId, skipping ID map entry`)
-			end
 		end
 	end
 
@@ -124,17 +115,6 @@ end
 -- @param code: The reservation code to load
 -- @return Types.Result<Types.ServerData>
 function ServerLoader.LoadServerByCode(code: string): Types.Result<Types.ServerData>
-	local cached = LocalData.GetCached(code)
-
-	if cached then
-		return {
-			success = true,
-			data = cached,
-			error = nil,
-			errorCode = nil
-		}
-	end
-
 	local entry = LocalData.GetServerEntry(code)
 
 	if entry then
@@ -171,13 +151,6 @@ function ServerLoader.LoadServerByCode(code: string): Types.Result<Types.ServerD
 	end
 
 	LocalData.SetServerEntry(code, server_data)
-	LocalData.SetCached(code, server_data)
-
-	if not server_data.ServerId then
-		warn(`LoadServerByCode(): Server { code } missing ServerId, skipping ID map entry`)
-	end
-
-	LocalData.IDToCodeMap[server_data.ServerId :: string] = code
 
 	return {
 		success = true,
@@ -281,8 +254,6 @@ function ServerLoader.SyncInit(): ()
 	task.spawn(function()
 		while LocalData.SyncActive do
 			task.wait(Config.GENERAL.SyncRate)
-
-			LocalData.CleanupCache()
 
 			local synced_result = ServerLoader.SyncWithMemoryStore()
 

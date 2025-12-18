@@ -34,7 +34,6 @@ function ServerCallbacks.Init(): ()
 
 	MessagingService:SubscribeAsync("ServerUpdated", function(packet)
 		local msg = packet.Data
-		local server_id = msg.ServerId
 
 		local existing = LocalData.GetServerEntry(msg.Code)
 
@@ -48,14 +47,7 @@ function ServerCallbacks.Init(): ()
 			existing.Description = msg.Description
 		end
 
-		if server_id then
-			existing.ServerId = server_id
-
-			LocalData.IDToCodeMap[server_id] = msg.Code
-		end
-
-		Config.SIGNALS.OnServerIdChanged:Fire(msg.Code)
-
+		Config.SIGNALS.OnServerCodeChanged:Fire(msg.Code)
 		Config.SIGNALS.OnServerUpdated:Fire(msg)
 
 		print(`ServerUpdated(): { msg.Code }`)
@@ -76,30 +68,20 @@ function ServerCallbacks.Init(): ()
 
 	MessagingService:SubscribeAsync("ServerRemoved", function(packet)
 		local msg = packet.Data
-		local server_id = msg.ServerId
 
 		LocalData.RemoveServerEntry(msg.Code)
 
 		Config.SIGNALS.OnServerRemoved:Fire(msg)
-
-		if server_id then
-			LocalData.IDToCodeMap[server_id] = nil
-		end
 
 		print(`ServerRemoved(): { msg.Code }`)
 	end)
 
 	MessagingService:SubscribeAsync("ServerShutdown", function(packet)
 		local msg = packet.Data
-		local server_id = msg.ServerId
 
 		LocalData.RemoveServerEntry(msg.Code)
 
 		Config.SIGNALS.OnServerShutdown:Fire(msg)
-
-		if server_id then
-			LocalData.IDToCodeMap[server_id] = nil
-		end
 
 		print(`ServerShutdown(): { msg.Code }`)
 	end)

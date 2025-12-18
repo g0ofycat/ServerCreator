@@ -144,7 +144,7 @@ end
 -- @return Types.Result<string>
 local function _reserveServer(): Types.Result<string>
 	local success, code = pcall(function()
-		return TeleportService:ReserveServerAsync(Config.CONSTS.PlaceId)
+		return TeleportService:ReserveServerAsync(Config.GENERAL.ServerPlaceId)
 	end)
 
 	if not success then
@@ -181,7 +181,6 @@ local function _initializeServerData(
 	local now = os.time()
 
 	return {
-		ServerId = nil,
 		Code = code,
 		OwnerUserId = user_id,
 		Name = filtered_name,
@@ -234,7 +233,6 @@ local function _broadcastServerCreation(
 	server_data: Types.ServerData
 ): Types.Result<boolean>
 	local message: Types.ServerMessage = {
-		ServerId = nil,
 		Type = Config.MESSAGE_TYPES.ServerCreated,
 		Code = server_data.Code,
 		Timestamp = os.time(),
@@ -431,7 +429,6 @@ function ServerCreator.CreateServer(
 		}
 	end
 
-	LocalData.SetCached(reservation_code, server_data)
 	LocalData.SetServerEntry(reservation_code, server_data)
 
 	task.spawn(function()
@@ -443,7 +440,6 @@ function ServerCreator.CreateServer(
 
 		if not teleportResult.success then
 			LocalData.RemoveServerEntry(reservation_code)
-			LocalData.ClearCached(reservation_code)
 
 			pcall(function()
 				ServerList:RemoveAsync(reservation_code)
@@ -468,70 +464,62 @@ end
 
 -- UpdateServer(): Updates an existing server's information
 -- @param code: The reservation code of the server to update
--- @param updated_id: Optional new server id
--- @param updated_name: Optional new server name
--- @param updated_description: Optional new description
+-- @param updated_table: Table of updated data
 -- @return Types.Result<Types.ServerData>
-function ServerCreator.UpdateServer(
-	code: string,
-	updated_id: string?,
-	updated_name: string?,
-	updated_description: string?
-): Types.Result<Types.ServerData>
+function ServerCreator.UpdateServer(code: string, updated_table: Types.ModifiableData): Types.Result<Types.ServerData>
 	local existing_data = LocalData.GetServerEntry(code)
 
 	if not existing_data then
-		existing_data = LocalData.GetCached(code)
+		local success, result = pcall(function()
+			return ServerList:GetAsync(code)
+		end)
 
-		if not existing_data then
-			local success, result = pcall(function()
-				return ServerList:GetAsync(code)
-			end)
-
-			if not success or not result then
-				return {
-					success = false,
-					data = nil,
-					error = "Server not found",
-					errorCode = Config.ERROR_CODES.SERVER_NOT_FOUND
-				}
-			end
-
-			existing_data = result
+		if not success or not result then
+			return {
+				success = false,
+				data = nil,
+				error = "Server not found",
+				errorCode = Config.ERROR_CODES.SERVER_NOT_FOUND
+			}
 		end
+
+		existing_data = result
+
+		LocalData.SetServerEntry(code, existing_data)
 	end
 
 	local filtered_name = existing_data.Name
 	local filtered_description = existing_data.Description
 
-	local new_id = existing_data.ServerId
+	local new_owner_id = existing_data.OwnerUserId
 
-	if updated_name then
+	if updated_table.updated_name then
 		local nameResult = _filterText(
-			updated_name,
+			updated_table.updated_name,
 			existing_data.OwnerUserId,
 			Config.VALIDATION.FilterFallbackName
 		)
+
 		filtered_name = nameResult.data or existing_data.Name
 	end
 
-	if updated_description then
+	if updated_table.updated_description then
 		local descResult = _filterText(
-			updated_description,
+			updated_table.updated_description,
 			existing_data.OwnerUserId,
 			Config.VALIDATION.FilterFallbackDescription
 		)
+
 		filtered_description = descResult.data or existing_data.Description
 	end
 
-	if updated_id then
-		new_id = updated_id
+	if updated_table.updated_owner_id then
+		new_owner_id = updated_table.updated_owner_id
 	end
 
 	local updated_data: Types.ServerData = {
-		ServerId = new_id,
 		Code = existing_data.Code,
-		OwnerUserId = existing_data.OwnerUserId,
+		OwnerUserId = new_owner_id,
 		Name = filtered_name,
 		Description = filtered_description,
 		PlayerCount = existing_data.PlayerCount,
@@ -552,19 +540,17 @@ function ServerCreator.UpdateServer(
 		}
 	end
 
-	LocalData.SetCached(code, updated_data)
 	LocalData.SetServerEntry(code, updated_data)
 
 	task.spawn(function()
 		local message: Types.ServerMessage = {
-			ServerId = new_id,
 			Type = Config.MESSAGE_TYPES.ServerUpdated,
 			Code = code,
 			Timestamp = os.time(),
 
 			Data = {
-				Name = updated_name and filtered_name or nil,
-				Description = updated_description and filtered_description or nil
+				Name = updated_table.updated_name and filtered_name or nil,
+				Description = updated_table.updated_description and filtered_description or nil
 			}
 		}
 
@@ -592,24 +578,22 @@ function ServerCreator.RemoveServer(
 	local existing_data = LocalData.GetServerEntry(code)
 
 	if not existing_data then
-		existing_data = LocalData.GetCached(code)
+		local success, result = pcall(function()
+			return ServerList:GetAsync(code)
+		end)
 
-		if not existing_data then
-			local success, result = pcall(function()
-				return ServerList:GetAsync(code)
-			end)
-
-			if not success or not result then
-				return {
-					success = false,
-					data = nil,
-					error = "Server not found",
-					errorCode = Config.ERROR_CODES.SERVER_NOT_FOUND
-				}
-			end
-
-			existing_data = result
+		if not success or not result then
+			return {
+				success = false,
+				data = nil,
+				error = "Server not found",
+				errorCode = Config.ERROR_CODES.SERVER_NOT_FOUND
+			}
 		end
+
+		existing_data = result
+
+		LocalData.SetServerEntry(code, existing_data)
 	end
 
 	if existing_data.OwnerUserId ~= user_id then
@@ -638,11 +622,9 @@ function ServerCreator.RemoveServer(
 	end
 
 	LocalData.RemoveServerEntry(code)
-	LocalData.ClearCached(code)
 
 	task.spawn(function()
 		local message: Types.ServerMessage = {
-			ServerId = nil,
 			Type = Config.MESSAGE_TYPES.ServerRemoved,
 			Code = code,
 			Timestamp = os.time(),
@@ -669,24 +651,22 @@ function ServerCreator.ShutdownServer(code: string): Types.Result<boolean>
 	local existing_data = LocalData.GetServerEntry(code)
 
 	if not existing_data then
-		existing_data = LocalData.GetCached(code)
+		local success, result = pcall(function()
+			return ServerList:GetAsync(code)
+		end)
 
-		if not existing_data then
-			local success, result = pcall(function()
-				return ServerList:GetAsync(code)
-			end)
-
-			if not success or not result then
-				return {
-					success = false,
-					data = nil,
-					error = "Server not found",
-					errorCode = Config.ERROR_CODES.SERVER_NOT_FOUND
-				}
-			end
-
-			existing_data = result
+		if not success or not result then
+			return {
+				success = false,
+				data = nil,
+				error = "Server not found",
+				errorCode = Config.ERROR_CODES.SERVER_NOT_FOUND
+			}
 		end
+
+		existing_data = result
+
+		LocalData.SetServerEntry(code, existing_data)
 	end
 
 	local success, err = pcall(function()
@@ -706,11 +686,9 @@ function ServerCreator.ShutdownServer(code: string): Types.Result<boolean>
 	end
 
 	LocalData.RemoveServerEntry(code)
-	LocalData.ClearCached(code)
 
 	task.spawn(function()
 		local message: Types.ServerMessage = {
-			ServerId = nil,
 			Type = Config.MESSAGE_TYPES.ServerShutdown,
 			Code = code,
 			Timestamp = os.time(),
@@ -762,12 +740,10 @@ function ServerCreator.IncrementPlayerCount(
 
 	local updated_count = result.PlayerCount
 
-	LocalData.SetCached(code, result)
 	LocalData.SetServerEntry(code, result)
 
 	task.spawn(function()
 		local message: Types.ServerMessage = {
-			ServerId = nil,
 			Type = Config.MESSAGE_TYPES.PlayerCountChanged,
 			Code = code,
 			Timestamp = os.time(),
@@ -794,9 +770,7 @@ end
 -- DecrementPlayerCount(): Decrements the player count for a server
 -- @param code: The reservation code of the server
 -- @return Types.Result<number>
-function ServerCreator.DecrementPlayerCount(
-	code: string
-): Types.Result<number>
+function ServerCreator.DecrementPlayerCount(code: string): Types.Result<number>
 	local success, result = pcall(function()
 		return ServerList:UpdateAsync(code, function(server_data: Types.ServerData)
 			if not server_data then
@@ -821,14 +795,22 @@ function ServerCreator.DecrementPlayerCount(
 		}
 	end
 
+	local server_entry = LocalData.GetServerEntry(code)
+
+	if server_entry then
+		local owner_user_id = server_entry.OwnerUserId
+
+		if not LocalData.IsPlayerInServer(owner_user_id) then
+			ServerCreator.UpdateServer(code, { updated_owner_id = LocalData.GetFirstPlayer().UserId })
+		end
+	end
+
 	local updated_count = result.PlayerCount
 
-	LocalData.SetCached(code, result)
 	LocalData.SetServerEntry(code, result)
 
 	task.spawn(function()
 		local message: Types.ServerMessage = {
-			ServerId = nil,
 			Type = Config.MESSAGE_TYPES.PlayerCountChanged,
 			Code = code,
 			Timestamp = os.time(),
@@ -866,7 +848,7 @@ function ServerCreator.JoinServer(player: Player, code: string): Types.Result<bo
 		}
 	end
 
-	if not LocalData.ServerEntries[code] then
+	if not LocalData.HasServerEntry(code) then
 		return {
 			success = false,
 			data = nil,
@@ -894,15 +876,59 @@ function ServerCreator.JoinServer(player: Player, code: string): Types.Result<bo
 	}
 end
 
--- UpdateServerID(): Updates the server ID
-function ServerCreator.UpdateServerID(): ()
+-- FilterServer(): Checks the servers that meet the predicate
+-- @param predicate: The predicates
+-- @return Types.Result<{ string }>; A table of codes that meet the predicate
+function ServerCreator.FilterServer(predicate: Types.PredicateType): Types.Result<{ string }>
+	local codes = {}
+
+	local operation_map = {
+		["=="] = function(a: Types.PredicateFields, b: any)
+			return a == b
+		end,
+		["~="] = function(a: Types.PredicateFields, b: any)
+			return a ~= b
+		end,
+		[">"] = function(a: Types.PredicateFields, b: any)
+			return a > b
+		end,
+		["<"] = function(a: Types.PredicateFields, b: any)
+			return a < b
+		end,
+		[">="] = function(a: Types.PredicateFields, b: any)
+			return a >= b
+		end,
+		["<="] = function(a: Types.PredicateFields, b: any)
+			return a <= b
+		end
+	}
+
+	for code, data in LocalData.ServerEntries do
+		local fieldValue = data[predicate.field]
+		local operation = operation_map[predicate.operator]
+
+		if operation and operation(fieldValue, predicate.value) then
+			table.insert(codes, code)
+		end
+	end
+
+	return {
+		success = true,
+		data = codes,
+		error = nil,
+		errorCode = nil
+	}
+end
+
+-- UpdateServerCode(): Updates the server code
+function ServerCreator.UpdateServerCode(): ()
 	if not ServerLoader.CheckIfReserved() then return end
 
 	local TeleportData = LocalData.GetTeleportData()
 
 	if not TeleportData or not TeleportData.ReservationCode then return end
 
-	ServerCreator.UpdateServer(TeleportData.ReservationCode :: string, Config.CONSTS.PrivateServerId)
+	ServerCreator.UpdateServer(TeleportData.ReservationCode :: string, { updated_code = Config.CONSTS.PrivateServerId })
 end
 
 -- AttachListeners(): Attach all listeners
@@ -924,13 +950,11 @@ function ServerCreator.AttachListeners(code: string): ()
 
 	Players.PlayerRemoving:Connect(function(player)
 		LocalData.TeleportDebounces[player.UserId] = nil
-
-		ServerCreator.DecrementPlayerCount(code)
+		ServerCreator.DecrementPlayerCount(code, player)
 	end)
 
 	game:BindToClose(function()
 		LocalData.SyncActive = false
-
 		ServerCreator.ShutdownServer(code)
 	end)
 
@@ -947,9 +971,9 @@ ServerLoader.LoadAllServers()
 
 ServerLoader.SyncInit()
 
-ServerCreator.UpdateServerID()
+ServerCreator.UpdateServerCode()
 
-Config.SIGNALS.OnServerIdChanged:Connect(function(code)
+Config.SIGNALS.OnServerCodeChanged:Connect(function(code)
 	ServerCreator.AttachListeners(code)
 end)
 
