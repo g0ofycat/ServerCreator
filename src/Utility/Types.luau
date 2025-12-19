@@ -83,8 +83,9 @@ export type ServerCreatedData = {
 }
 
 export type ServerUpdatedData = {
-	Name: string?,
-	Description: string?
+	Name: string,
+	Description: string,
+	OwnerUserId: number
 }
 
 export type PlayerCountData = {

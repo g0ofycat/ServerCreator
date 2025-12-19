@@ -388,15 +388,11 @@ function ServerCreator.CreateServer(
 		Config.VALIDATION.FilterFallbackName
 	)
 
-	local filtered_name = nameResult.data or Config.VALIDATION.FilterFallbackName
-
 	local descResult = _filterText(
 		description,
 		user_id,
 		Config.VALIDATION.FilterFallbackDescription
 	)
-
-	local filtered_description = descResult.data or Config.VALIDATION.FilterFallbackDescription
 
 	local reservationResult = _reserveServer()
 
@@ -414,8 +410,8 @@ function ServerCreator.CreateServer(
 	local server_data = _initializeServerData(
 		reservation_code,
 		user_id,
-		filtered_name,
-		filtered_description
+		nameResult.data :: string,
+		descResult.data :: string
 	)
 
 	local saveResult = _saveToMemoryStore(reservation_code, server_data)
@@ -491,6 +487,7 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 	local filtered_name = existing_data.Name
 	local filtered_description = existing_data.Description
 
+	local new_code = existing_data.Code
 	local new_owner_id = existing_data.OwnerUserId
 
 	if updated_table.updated_name then
@@ -500,7 +497,7 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 			Config.VALIDATION.FilterFallbackName
 		)
 
-		filtered_name = nameResult.data or existing_data.Name
+		filtered_name = nameResult.data
 	end
 
 	if updated_table.updated_description then
@@ -510,7 +507,11 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 			Config.VALIDATION.FilterFallbackDescription
 		)
 
-		filtered_description = descResult.data or existing_data.Description
+		filtered_description = descResult.data
+	end
+
+	if updated_table.updated_code then
+		new_code = updated_table.updated_code
 	end
 
 	if updated_table.updated_owner_id then
@@ -518,10 +519,10 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 	end
 
 	local updated_data: Types.ServerData = {
-		Code = existing_data.Code,
+		Code = new_code,
 		OwnerUserId = new_owner_id,
-		Name = filtered_name,
-		Description = filtered_description,
+		Name = filtered_name :: string,
+		Description = filtered_description :: string,
 		PlayerCount = existing_data.PlayerCount,
 		MaxPlayers = existing_data.MaxPlayers,
 		CreatedAt = existing_data.CreatedAt,
@@ -529,7 +530,7 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 		IsActive = existing_data.IsActive
 	}
 
-	local saveResult = _saveToMemoryStore(code, updated_data)
+	local saveResult = _saveToMemoryStore(new_code, updated_data)
 
 	if not saveResult.success then
 		return {
@@ -540,17 +541,26 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 		}
 	end
 
-	LocalData.SetServerEntry(code, updated_data)
+	if new_code ~= code then
+		pcall(function()
+			ServerList:RemoveAsync(code)
+		end)
+
+		LocalData.RemoveServerEntry(code)
+	end
+
+	LocalData.SetServerEntry(new_code, updated_data)
 
 	task.spawn(function()
 		local message: Types.ServerMessage = {
 			Type = Config.MESSAGE_TYPES.ServerUpdated,
-			Code = code,
+			Code = new_code,
 			Timestamp = os.time(),
 
 			Data = {
-				Name = updated_table.updated_name and filtered_name or nil,
-				Description = updated_table.updated_description and filtered_description or nil
+				Name = filtered_name :: string,
+				Description = filtered_description :: string,
+				OwnerUserId = new_owner_id
 			}
 		}
 
