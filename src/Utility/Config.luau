@@ -36,9 +36,7 @@ return {
 		OnServerUpdated = Signal.new() :: Signal.Signal, -- // Types.ServerMessage
 		OnServerRemoved = Signal.new() :: Signal.Signal, -- // Types.ServerMessage
 		OnPlayerCountChanged = Signal.new() :: Signal.Signal, -- // Types.ServerMessage
-		OnServerShutdown = Signal.new() :: Signal.Signal, -- // Types.ServerMessage
-
-		OnServerCodeChanged = Signal.new() :: Signal.Signal -- // Code: string
+		OnServerShutdown = Signal.new() :: Signal.Signal -- // Types.ServerMessage
 	},
 
 	--=======================

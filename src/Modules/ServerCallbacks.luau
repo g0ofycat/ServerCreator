@@ -24,6 +24,7 @@ local LocalData = require("../Data/LocalData")
 function ServerCallbacks.Init(): ()
 	MessagingService:SubscribeAsync("ServerCreated", function(packet)
 		local msg = packet.Data
+		if not msg then return end
 
 		LocalData.SetServerEntry(msg.Code, msg.Data)
 
@@ -34,20 +35,15 @@ function ServerCallbacks.Init(): ()
 
 	MessagingService:SubscribeAsync("ServerUpdated", function(packet)
 		local msg = packet.Data
+		if not msg then return end
 
 		local existing = LocalData.GetServerEntry(msg.Code)
+		if not existing then return end
 
-		if not existing or not msg then return end
+		existing.Name = msg.Name
+		existing.Description = msg.Description
+		existing.OwnerUserId = msg.OwnerUserId
 
-		if msg.Name then
-			existing.Name = msg.Name
-		end
-
-		if msg.Description then
-			existing.Description = msg.Description
-		end
-
-		Config.SIGNALS.OnServerCodeChanged:Fire(msg.Code)
 		Config.SIGNALS.OnServerUpdated:Fire(msg)
 
 		print(`ServerUpdated(): { msg.Code }`)
@@ -55,11 +51,13 @@ function ServerCallbacks.Init(): ()
 
 	MessagingService:SubscribeAsync("PlayerCountChanged", function(packet)
 		local msg = packet.Data
-		local existing = LocalData.GetServerEntry(msg.Code)
+		if not msg then return end
 
-		if not existing or not msg then return end
+		local existing = LocalData.GetServerEntry(msg.Code)
+		if not existing then return end
 
 		existing.PlayerCount = msg.Data.PlayerCount
+		existing.MaxPlayers = msg.Data.MaxPlayers
 
 		Config.SIGNALS.OnPlayerCountChanged:Fire(msg)
 
@@ -68,6 +66,8 @@ function ServerCallbacks.Init(): ()
 
 	MessagingService:SubscribeAsync("ServerRemoved", function(packet)
 		local msg = packet.Data
+
+		if not msg then return end
 
 		LocalData.RemoveServerEntry(msg.Code)
 
@@ -78,6 +78,8 @@ function ServerCallbacks.Init(): ()
 
 	MessagingService:SubscribeAsync("ServerShutdown", function(packet)
 		local msg = packet.Data
+
+		if not msg then return end
 
 		LocalData.RemoveServerEntry(msg.Code)
 

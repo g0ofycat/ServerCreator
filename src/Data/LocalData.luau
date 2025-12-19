@@ -139,10 +139,9 @@ end
 -- @return Types.TeleportDataType
 function LocalData.GetTeleportData(): Types.TeleportDataType
 	local FirstPlayer = LocalData.GetFirstPlayer()
-
 	local TeleportData = FirstPlayer:GetJoinData().TeleportData
 
-	return TeleportData
+	return TeleportData :: Types.TeleportDataType
 end
 
 return LocalData
