@@ -61,8 +61,8 @@ export type Result<T> = {
 export type MessageType =
 	"ServerCreated"
 | "ServerUpdated"
-| "ServerRemoved"
 | "PlayerCountChanged"
+| "ServerRemoved"
 | "ServerShutdown"
 
 export type ServerMessage = {

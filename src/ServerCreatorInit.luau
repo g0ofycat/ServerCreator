@@ -930,17 +930,6 @@ function ServerCreator.FilterServer(predicate: Types.PredicateType): Types.Resul
 	}
 end
 
--- UpdateServerCode(): Updates the server code
-function ServerCreator.UpdateServerCode(): ()
-	if not ServerLoader.CheckIfReserved() then return end
-
-	local TeleportData = LocalData.GetTeleportData()
-
-	if not TeleportData or not TeleportData.ReservationCode then return end
-
-	ServerCreator.UpdateServer(TeleportData.ReservationCode :: string, { updated_code = Config.CONSTS.PrivateServerId })
-end
-
 -- AttachListeners(): Attach all listeners
 -- @param code: The code of the server
 function ServerCreator.AttachListeners(code: string): ()
@@ -980,8 +969,6 @@ ServerCallbacks.Init()
 ServerLoader.LoadAllServers()
 
 ServerLoader.SyncInit()
-
-ServerCreator.UpdateServerCode()
 
 Config.SIGNALS.OnServerCodeChanged:Connect(function(code)
 	ServerCreator.AttachListeners(code)

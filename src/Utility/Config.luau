@@ -14,14 +14,6 @@ local Types = require("../Utility/Types")
 
 return {
 	--=======================
-	-- // CONSTS
-	--=======================
-
-	CONSTS = {
-		PrivateServerId = game.PrivateServerId
-	},
-
-	--=======================
 	-- // GENERAL
 	--=======================
 
@@ -81,6 +73,8 @@ return {
 		MEMORYSTORE_FAILED = "MEMORYSTORE_FAILED",
 		TELEPORT_FAILED = "TELEPORT_FAILED",
 		SERVER_NOT_FOUND = "SERVER_NOT_FOUND",
+		PERMISSION_DENIED = "PERMISSION_DENIED",
+		RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED",
 		MISC_ERROR = "MISC_ERROR",
 		UNKNOWN_ERROR = "UNKNOWN_ERROR"
 	} :: { [string]: Types.ErrorCode },
@@ -92,7 +86,8 @@ return {
 	MESSAGE_TYPES = {
 		ServerCreated = "ServerCreated",
 		ServerUpdated = "ServerUpdated",
+		PlayerCountChanged = "PlayerCountChanged",
 		ServerRemoved = "ServerRemoved",
-		PlayerCountChanged = "PlayerCountChanged"
+		ServerShutdown = "ServerShutdown"
 	} :: { [string]: Types.MessageType }
 }
