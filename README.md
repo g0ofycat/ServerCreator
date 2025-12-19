@@ -84,3 +84,5 @@ SIGNALS = {
 	OnServerShutdown = Signal.new() :: Signal.Signal -- // Types.ServerMessage
 }
 ```
+
+<small>support me 🙏: https://www.roblox.com/games/78613731270986/im-broke-pls-dono</small>
