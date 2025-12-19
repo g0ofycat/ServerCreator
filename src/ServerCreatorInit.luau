@@ -931,8 +931,15 @@ function ServerCreator.FilterServer(predicate: Types.PredicateType): Types.Resul
 end
 
 -- AttachListeners(): Attach all listeners
--- @param code: The code of the server
-function ServerCreator.AttachListeners(code: string): ()
+function ServerCreator.AttachListeners(): ()
+	local teleport_data = LocalData.GetTeleportData()
+
+	if not teleport_data then return end
+
+	local code = teleport_data.ReservationCode
+
+	if not code then return end
+
 	if not ServerLoader.CheckIfReserved() or LocalData.AttachmentsInitialized then return end
 
 	if #Players:GetPlayers() == 0 then
@@ -949,7 +956,8 @@ function ServerCreator.AttachListeners(code: string): ()
 
 	Players.PlayerRemoving:Connect(function(player)
 		LocalData.TeleportDebounces[player.UserId] = nil
-		ServerCreator.DecrementPlayerCount(code, player)
+
+		ServerCreator.DecrementPlayerCount(code)
 	end)
 
 	game:BindToClose(function()
@@ -970,8 +978,6 @@ ServerLoader.LoadAllServers()
 
 ServerLoader.SyncInit()
 
-Config.SIGNALS.OnServerCodeChanged:Connect(function(code)
-	ServerCreator.AttachListeners(code)
-end)
+ServerCreator.AttachListeners()
 
 return ServerCreator

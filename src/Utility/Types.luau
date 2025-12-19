@@ -33,6 +33,11 @@ export type ModifiableData = {
 	updated_owner_id: number?
 }
 
+export type TeleportDataType = {
+	IsReservedServer: boolean,
+	ReservationCode: string
+}
+
 export type PredicateType = {
 	field: PredicateFields,
 	operator: PredicateOperators,
@@ -54,19 +59,8 @@ export type Result<T> = {
 	errorCode: string?
 }
 
---=======================
--- // MESSAGING TYPES
---=======================
-
-export type MessageType =
-	"ServerCreated"
-| "ServerUpdated"
-| "PlayerCountChanged"
-| "ServerRemoved"
-| "ServerShutdown"
-
 export type ServerMessage = {
-	Type: MessageType,
+	Type: string,
 	Code: string,
 	Timestamp: number,
 	Data: ServerMessageData?
@@ -94,23 +88,6 @@ export type PlayerCountData = {
 	PlayerCount: number,
 	MaxPlayers: number
 }
-
---=======================
--- // ERROR CODES
---=======================
-
-export type ErrorCode =
-	"DEBOUNCE_ACTIVE"
-| "INVALID_PARAMETERS"
-| "FILTERING_FAILED"
-| "RESERVATION_FAILED"
-| "MEMORYSTORE_FAILED"
-| "TELEPORT_FAILED"
-| "SERVER_NOT_FOUND"
-| "PERMISSION_DENIED"
-| "RATE_LIMIT_EXCEEDED"
-| "MISC_ERROR"
-| "UNKNOWN_ERROR"
 
 --=======================
 -- // MEMORY TYPES

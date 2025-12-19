@@ -136,8 +136,8 @@ function LocalData.GetFirstPlayer(): Player
 end
 
 -- GetTeleportData(): Get teleport data
--- @return { any }?
-function LocalData.GetTeleportData(): { [any]: any }?
+-- @return Types.TeleportDataType
+function LocalData.GetTeleportData(): Types.TeleportDataType
 	local FirstPlayer = LocalData.GetFirstPlayer()
 
 	local TeleportData = FirstPlayer:GetJoinData().TeleportData

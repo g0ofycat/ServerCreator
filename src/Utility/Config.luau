@@ -6,8 +6,6 @@
 
 local Signal = require("./Signal")
 
-local Types = require("../Utility/Types")
-
 --=======================
 -- // CONFIG
 --=======================
@@ -74,10 +72,8 @@ return {
 		TELEPORT_FAILED = "TELEPORT_FAILED",
 		SERVER_NOT_FOUND = "SERVER_NOT_FOUND",
 		PERMISSION_DENIED = "PERMISSION_DENIED",
-		RATE_LIMIT_EXCEEDED = "RATE_LIMIT_EXCEEDED",
-		MISC_ERROR = "MISC_ERROR",
 		UNKNOWN_ERROR = "UNKNOWN_ERROR"
-	} :: { [string]: Types.ErrorCode },
+	},
 
 	--=======================
 	-- // MESSAGE TYPES
@@ -89,5 +85,5 @@ return {
 		PlayerCountChanged = "PlayerCountChanged",
 		ServerRemoved = "ServerRemoved",
 		ServerShutdown = "ServerShutdown"
-	} :: { [string]: Types.MessageType }
+	}
 }
