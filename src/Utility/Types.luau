@@ -13,7 +13,9 @@ export type ServerData = {
 	MaxPlayers: number,
 	CreatedAt: number,
 	LastUpdate: number,
-	IsActive: boolean
+	IsActive: boolean,
+
+	[string]: any
 }
 
 export type ServerListEntry = {
