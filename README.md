@@ -63,7 +63,15 @@ function ServerCreator.RemoveServer(
 ): Types.Result<boolean>
 ```
 
-6. **Signals**
+6. **View Servers**
+
+```lua
+-- GetServerList(): Gets lightweight server list for UI
+-- @return Types.Result<{Types.ServerListEntry}>
+function ServerLoader.GetServerList(): Types.Result<{ Types.ServerListEntry }>
+```
+
+7. **Signals**
 
 Located in **Config.luau**. Refer to **Signal.luau** for the actual API. Use these to hook up *UI events*.
 
