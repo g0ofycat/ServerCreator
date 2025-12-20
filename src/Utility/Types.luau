@@ -21,6 +21,7 @@ export type ServerData = {
 export type ServerListEntry = {
 	Code: string,
 	Name: string,
+	Description: string,
 	PlayerCount: number,
 	MaxPlayers: number,
 	OwnerUserId: number

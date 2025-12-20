@@ -215,6 +215,7 @@ function ServerLoader.GetServerList(): Types.Result<{ Types.ServerListEntry }>
 		table.insert(entries, {
 			Code = code,
 			Name = server_data.Name,
+			Description = server_data.Description,
 			PlayerCount = server_data.PlayerCount,
 			MaxPlayers = server_data.MaxPlayers,
 			OwnerUserId = server_data.OwnerUserId
