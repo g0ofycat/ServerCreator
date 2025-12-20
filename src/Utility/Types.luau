@@ -75,7 +75,10 @@ export type ServerCreatedData = {
 	OwnerUserId: number,
 	Name: string,
 	Description: string,
-	CreatedAt: number
+	CreatedAt: number,
+
+	PlayerCount: number,
+	MaxPlayers: number
 }
 
 export type ServerUpdatedData = {

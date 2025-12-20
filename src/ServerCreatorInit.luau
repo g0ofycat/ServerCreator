@@ -241,7 +241,10 @@ local function _broadcastServerCreation(
 			OwnerUserId = server_data.OwnerUserId,
 			Name = server_data.Name,
 			Description = server_data.Description,
-			CreatedAt = server_data.CreatedAt
+			CreatedAt = server_data.CreatedAt,
+
+			PlayerCount = server_data.PlayerCount,
+			MaxPlayers = server_data.MaxPlayers
 		}
 	}
 
@@ -989,7 +992,7 @@ end
 
 ServerCallbacks.Init()
 
-Config.SIGNALS.OnServerInit:Fire(Config.MESSAGE_TYPES.ServerInit, ServerLoader.LoadAllServers())
+ServerLoader.LoadAllServers()
 
 ServerLoader.SyncInit()
 

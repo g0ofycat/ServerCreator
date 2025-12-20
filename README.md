@@ -81,9 +81,7 @@ SIGNALS = {
 	OnServerUpdated = Signal.new() :: Signal.Signal, -- // Types.ServerMessage
 	OnServerRemoved = Signal.new() :: Signal.Signal, -- // Types.ServerMessage
 	OnPlayerCountChanged = Signal.new() :: Signal.Signal, -- // Types.ServerMessage
-	OnServerShutdown = Signal.new() :: Signal.Signal, -- // Types.ServerMessage
-
-	OnServerInit = Signal.new() :: Signal.Signal -- // { Types.ServerMessage }
+	OnServerShutdown = Signal.new() :: Signal.Signal -- // Types.ServerMessage
 }
 ```
 
