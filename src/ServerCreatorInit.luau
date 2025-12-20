@@ -298,6 +298,21 @@ local function _teleportPlayer(
 		}
 	end
 
+	local TeleportData = LocalData.GetTeleportData()
+
+	if TeleportData then
+		local code = TeleportData.ReservationCode
+
+		if code and code == reservation_code then
+			return {
+				success = false,
+				data = nil,
+				error = "You're already in this server",
+				errorCode = Config.ERROR_CODES.INVALID_PARAMETERS
+			}
+		end
+	end
+
 	LocalData.TeleportDebounces[player.UserId] = true
 
 	local TeleportOptions = Instance.new("TeleportOptions")
@@ -974,7 +989,7 @@ end
 
 ServerCallbacks.Init()
 
-ServerLoader.LoadAllServers()
+Config.SIGNALS.OnServerInit:Fire(Config.MESSAGE_TYPES.ServerInit, ServerLoader.LoadAllServers())
 
 ServerLoader.SyncInit()
 
