@@ -823,16 +823,6 @@ function ServerCreator.DecrementPlayerCount(code: string): Types.Result<number>
 		}
 	end
 
-	local server_entry = LocalData.GetServerEntry(code)
-
-	if server_entry then
-		local owner_user_id = server_entry.OwnerUserId
-
-		if not LocalData.IsPlayerInServer(owner_user_id) then
-			ServerCreator.UpdateServer(code, { updated_owner_id = LocalData.GetFirstPlayer().UserId })
-		end
-	end
-
 	local updated_count = result.PlayerCount
 
 	LocalData.SetServerEntry(code, result)
@@ -853,6 +843,16 @@ function ServerCreator.DecrementPlayerCount(code: string): Types.Result<number>
 			MessagingService:PublishAsync("PlayerCountChanged", message)
 		end)
 	end)
+
+	local server_entry = LocalData.GetServerEntry(code)
+
+	if server_entry then
+		local owner_user_id = server_entry.OwnerUserId
+
+		if not LocalData.IsPlayerInServer(owner_user_id) then
+			ServerCreator.UpdateServer(code, { updated_owner_id = LocalData.GetFirstPlayer().UserId })
+		end
+	end
 
 	return {
 		success = true,
