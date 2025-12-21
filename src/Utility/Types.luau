@@ -13,7 +13,7 @@ export type ServerData = {
 	MaxPlayers: number,
 	CreatedAt: number,
 	LastUpdate: number,
-	ServerOptions: ServerOptions?,
+	ServerOptions: ServerOptions,
 
 	[string]: any
 }
