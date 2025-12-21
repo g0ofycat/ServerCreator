@@ -908,6 +908,21 @@ end
 -- @param predicate: The predicates
 -- @return Types.Result<{ string }>; A table of codes that meet the predicate
 function ServerCreator.FilterServer(predicate: Types.PredicateType): Types.Result<{ string }>
+	if predicate.value == nil or predicate.value == "" then
+		local codes = {}
+
+		for code in LocalData.ServerEntries do
+			table.insert(codes, code)
+		end
+
+		return {
+			success = true,
+			data = codes,
+			error = nil,
+			errorCode = nil
+		}
+	end
+
 	local codes = {}
 
 	local operation_map = {
