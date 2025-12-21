@@ -218,7 +218,10 @@ function ServerLoader.GetServerList(): Types.Result<{ Types.ServerListEntry }>
 			Description = server_data.Description,
 			PlayerCount = server_data.PlayerCount,
 			MaxPlayers = server_data.MaxPlayers,
-			OwnerUserId = server_data.OwnerUserId
+			OwnerUserId = server_data.OwnerUserId,
+
+			IsPrivate = server_data.ServerOptions.IsPrivate,
+			ServerPassword = server_data.ServerOptions.ServerPassword,
 		})
 	end
 

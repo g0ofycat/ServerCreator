@@ -24,7 +24,10 @@ export type ServerListEntry = {
 	Description: string,
 	PlayerCount: number,
 	MaxPlayers: number,
-	OwnerUserId: number
+	OwnerUserId: number,
+
+	IsPrivate: boolean,
+	ServerPassword: string?
 }
 
 export type ModifiableData = {
