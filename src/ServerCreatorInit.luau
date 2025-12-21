@@ -171,12 +171,16 @@ end
 -- @param user_id: The owner's user id
 -- @param filtered_name: The filtered server name
 -- @param filtered_description: The filtered description
+-- @param is_private?: Whether the server is private (optional)
+-- @param server_password?: The server password (optional)
 -- @return Types.ServerData
 local function _initializeServerData(
 	code: string,
 	user_id: number,
 	filtered_name: string,
-	filtered_description: string
+	filtered_description: string,
+	is_private: boolean?,
+	server_password: string?
 ): Types.ServerData
 	local now = os.time()
 
@@ -189,7 +193,10 @@ local function _initializeServerData(
 		MaxPlayers = Players.MaxPlayers,
 		CreatedAt = now,
 		LastUpdate = now,
-		IsActive = true
+		ServerOptions = {
+			IsPrivate = is_private or false,
+			ServerPassword = server_password or nil
+		}
 	}
 end
 
@@ -283,6 +290,15 @@ local function _teleportPlayer(
 	place_id: number,
 	reservation_code: string
 ): Types.Result<boolean>
+	if not player then
+		return {
+			success = false,
+			data = nil,
+			error = "Player not found",
+			errorCode = Config.ERROR_CODES.INVALID_PARAMETERS
+		}
+	end
+
 	if LocalData.TeleportDebounces[player.UserId] then
 		return {
 			success = false,
@@ -376,7 +392,8 @@ function ServerCreator.CreateServer(
 	user_id: number,
 	server_name: string,
 	description: string,
-	player: Player?
+	player: Player?,
+	server_options: Types.ServerOptions?
 ): Types.Result<string>
 	if LocalData.IsDebounced(user_id) then
 		return {
@@ -429,7 +446,9 @@ function ServerCreator.CreateServer(
 		reservation_code,
 		user_id,
 		nameResult.data :: string,
-		descResult.data :: string
+		descResult.data :: string,
+		server_options and server_options.IsPrivate,
+		server_options and server_options.ServerPassword
 	)
 
 	local saveResult = _saveToMemoryStore(reservation_code, server_data)
@@ -545,7 +564,10 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 		MaxPlayers = existing_data.MaxPlayers,
 		CreatedAt = existing_data.CreatedAt,
 		LastUpdate = os.time(),
-		IsActive = existing_data.IsActive
+		ServerOptions = {
+			IsPrivate = existing_data.ServerOptions and existing_data.ServerOptions.IsPrivate or false,
+			ServerPassword = existing_data.ServerOptions and existing_data.ServerOptions.ServerPassword or nil
+		}
 	}
 
 	local saveResult = _saveToMemoryStore(new_code, updated_data)
@@ -865,24 +887,38 @@ end
 -- JoinServer(): Teleport to a server
 -- @param player: The player to teleport
 -- @param code: UID of the reserved server
+-- @param server_password: The password for the server (if required)
 -- @return Types.Result<boolean>
-function ServerCreator.JoinServer(player: Player, code: string): Types.Result<boolean>
-	if not player then
-		return {
-			success = false,
-			data = nil,
-			error = "Player not found",
-			errorCode = Config.ERROR_CODES.INVALID_PARAMETERS
-		}
-	end
+function ServerCreator.JoinServer(player: Player, code: string, server_password: string?): Types.Result<boolean>
+	local server_data = LocalData.GetServerEntry(code)
 
-	if not LocalData.HasServerEntry(code) then
+	if not server_data then
 		return {
 			success = false,
 			data = nil,
 			error = "Invalid Server Code",
 			errorCode = Config.ERROR_CODES.INVALID_PARAMETERS
 		}
+	end
+
+	if server_data.ServerOptions then
+		if server_data.ServerOptions.IsPrivate and not server_password then
+			return {
+				success = false,
+				data = nil,
+				error = "This server is private",
+				errorCode = Config.ERROR_CODES.PERMISSION_DENIED
+			}
+		end
+
+		if server_data.ServerOptions.IsPrivate and server_password ~= server_data.ServerOptions.ServerPassword then
+			return {
+				success = false,
+				data = nil,
+				error = "Invalid server password",
+				errorCode = Config.ERROR_CODES.PERMISSION_DENIED
+			}
+		end
 	end
 
 	local teleportResult = _teleportPlayer(player, Config.GENERAL.ServerPlaceId, code)

@@ -13,7 +13,7 @@ export type ServerData = {
 	MaxPlayers: number,
 	CreatedAt: number,
 	LastUpdate: number,
-	IsActive: boolean,
+	ServerOptions: ServerOptions?,
 
 	[string]: any
 }
@@ -37,6 +37,11 @@ export type ModifiableData = {
 export type TeleportDataType = {
 	IsReservedServer: boolean,
 	ReservationCode: string
+}
+
+export type ServerOptions = {
+	IsPrivate: boolean,
+	ServerPassword: string?
 }
 
 export type PredicateType = {

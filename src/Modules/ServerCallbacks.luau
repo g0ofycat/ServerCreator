@@ -66,7 +66,6 @@ function ServerCallbacks.Init(): ()
 
 	MessagingService:SubscribeAsync("ServerRemoved", function(packet)
 		local msg = packet.Data
-
 		if not msg then return end
 
 		LocalData.RemoveServerEntry(msg.Code)
@@ -78,7 +77,6 @@ function ServerCallbacks.Init(): ()
 
 	MessagingService:SubscribeAsync("ServerShutdown", function(packet)
 		local msg = packet.Data
-
 		if not msg then return end
 
 		LocalData.RemoveServerEntry(msg.Code)

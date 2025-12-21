@@ -39,7 +39,7 @@ local function _processServerEntry(entry: Types.ServerEntry): boolean
 		return false
 	end
 
-	if server_data.PlayerCount <= 0 and server_data.IsActive == false then
+	if server_data.PlayerCount <= 0 then
 		return false
 	end
 

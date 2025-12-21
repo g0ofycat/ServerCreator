@@ -56,13 +56,6 @@ end
 -- // SERVER API
 --=======================
 
--- HasServerEntry(): Check if server entry exists
--- @param code: The code of the server entry to check
--- @return boolean
-function LocalData.HasServerEntry(code: string): boolean
-	return LocalData.ServerEntries[code] ~= nil
-end
-
 -- GetServerEntry(): Get server entry
 -- @param code: The code of the server entry to get
 -- @return Types.ServerData?
