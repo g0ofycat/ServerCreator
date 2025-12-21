@@ -427,6 +427,15 @@ function ServerCreator.CreateServer(
 		}
 	end
 
+	if server_name == "" or description == "" then
+		return {
+			success = false,
+			data = nil,
+			error = "Server name or description cannot be empty",
+			errorCode = Config.ERROR_CODES.INVALID_PARAMETERS
+		}
+	end
+
 	LocalData.SetDebounce(user_id, Config.GENERAL.DebounceTime)
 
 	local validationResult = _validateParameters(user_id, server_name, description)
