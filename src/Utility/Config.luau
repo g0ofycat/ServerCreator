@@ -16,11 +16,11 @@ return {
 	--=======================
 
 	GENERAL = {
-		DebounceTime = 10, -- // number: TIME IN SECONDS FOR PLAYER DEBOUNCE
+		DebounceTime = 10, -- // number: TIME IN SECONDS FOR PLAYER SERVER CREATION DEBOUNCE
 		MaxServerNameLength = 50, -- // number: MAXIMUM LENGTH OF SERVER NAME
 		MaxDescriptionLength = 200, -- // number: MAXIMUM LENGTH OF SERVER DESCRIPTION
 
-		TeleportDebounce = 3, -- // number: TELEPORT DEBOUNCE
+		TeleportDebounce = 5, -- // number: TELEPORT DEBOUNCE
 
 		SyncRate = 30, -- // number: TIME IN SECONDS FOR SERVER INFO SYNC
 

@@ -269,7 +269,12 @@ local function _broadcastServerCreation(
 			CreatedAt = server_data.CreatedAt,
 
 			PlayerCount = server_data.PlayerCount,
-			MaxPlayers = server_data.MaxPlayers
+			MaxPlayers = server_data.MaxPlayers,
+
+			ServerOptions = {
+				IsPrivate = server_data.ServerOptions.IsPrivate,
+				ServerPassword = server_data.ServerOptions.ServerPassword
+			}
 		}
 	}
 
@@ -582,6 +587,7 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 		MaxPlayers = existing_data.MaxPlayers,
 		CreatedAt = existing_data.CreatedAt,
 		LastUpdate = os.time(),
+
 		ServerOptions = {
 			IsPrivate = existing_data.ServerOptions and existing_data.ServerOptions.IsPrivate or false,
 			ServerPassword = existing_data.ServerOptions and existing_data.ServerOptions.ServerPassword or nil
@@ -618,7 +624,12 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 			Data = {
 				Name = filtered_name :: string,
 				Description = filtered_description :: string,
-				OwnerUserId = new_owner_id
+				OwnerUserId = new_owner_id,
+
+				ServerOptions = {
+					IsPrivate = updated_data.ServerOptions.IsPrivate,
+					ServerPassword = updated_data.ServerOptions.ServerPassword
+				}
 			}
 		}
 
