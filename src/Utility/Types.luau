@@ -50,9 +50,9 @@ export type PredicateType = {
 	value: any
 }
 
-export type PredicateOperators = "==" | "~=" | ">" | "<" | ">=" | "<="
+export type PredicateOperators = "==" | "~=" | ">" | "<" | ">=" | "<=" | "*="
 
-export type PredicateFields = "Code" | "OwnerUserId" | "Name" | "Description" | "PlayerCount"
+export type PredicateFields = "Code" | "OwnerUserId" | "Name" | "Description" | "PlayerCount" | "ServerOptions.IsPrivate"
 
 --=======================
 -- // OPERATION TYPES

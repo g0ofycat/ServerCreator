@@ -38,6 +38,24 @@ local ServerList = MemoryStoreService:GetSortedMap("ServerList")
 -- // PRIVATE API
 --=======================
 
+-- _resolvePath(): Resolves a path in a table
+-- @param table: The table to resolve the path in
+-- @param path: The path to resolve
+-- @return any
+local function _resolvePath(table: any, path: string): any
+	local current = table
+
+	for key in string.gmatch(path, "[^%.]+") do
+		if type(current) ~= "table" then
+			return nil
+		end
+
+		current = current[key]
+	end
+
+	return current
+end
+
 -- _validateParameters(): Validates server creation parameters
 -- @param user_id: The user id to validate
 -- @param server_name: The server name to validate
@@ -979,11 +997,19 @@ function ServerCreator.FilterServer(predicate: Types.PredicateType): Types.Resul
 		end,
 		["<="] = function(a: Types.PredicateFields, b: any)
 			return a <= b
+		end,
+
+		["*="] = function(a, b)
+			if type(a) ~= "string" or type(b) ~= "string" then
+				return false
+			end
+
+			return string.find(string.lower(a), string.lower(b), 1, true) ~= nil
 		end
 	}
 
 	for code, data in LocalData.ServerEntries do
-		local fieldValue = data[predicate.field]
+		local fieldValue = _resolvePath(data, predicate.field)
 		local operation = operation_map[predicate.operator]
 
 		if operation and operation(fieldValue, predicate.value) then
