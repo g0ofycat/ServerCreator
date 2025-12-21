@@ -53,7 +53,7 @@ return {
 	--=======================
 
 	VALIDATION = {
-		FilterFallbackName = "[Filtered]", -- // string: DEFAULT NAME IF FILTERING FAILS
+		FilterFallbackName = "[No Name]", -- // string: DEFAULT NAME IF FILTERING FAILS
 		FilterFallbackDescription = "[No Description]" -- // string: DEFAULT DESCRIPTION IF FILTERING FAILS
 	},
 
