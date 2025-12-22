@@ -517,7 +517,7 @@ end
 -- @param updated_table: Table of updated data
 -- @return Types.Result<Types.ServerData>
 function ServerCreator.UpdateServer(code: string, updated_table: Types.ModifiableData): Types.Result<Types.ServerData>
-	local existing_data = LocalData.GetServerEntry(code)
+	local existing_data = LocalData.GetServerEntry(code) :: any
 
 	if not existing_data then
 		local success, result = pcall(function()
@@ -618,7 +618,7 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 			Data = {
 				Name = filtered_name :: string,
 				Description = filtered_description :: string,
-				OwnerUserId = new_owner_id,
+				OwnerUserId = new_owner_id :: number,
 
 				ServerOptions = {
 					IsPrivate = updated_data.ServerOptions.IsPrivate,
@@ -648,7 +648,7 @@ function ServerCreator.RemoveServer(
 	code: string,
 	user_id: number
 ): Types.Result<boolean>
-	local existing_data = LocalData.GetServerEntry(code)
+	local existing_data = LocalData.GetServerEntry(code) :: any
 
 	if not existing_data then
 		local success, result = pcall(function()
@@ -721,7 +721,7 @@ end
 -- @param code: The reservation code of the server to shutdown
 -- @return Types.Result<boolean>
 function ServerCreator.ShutdownServer(code: string): Types.Result<boolean>
-	local existing_data = LocalData.GetServerEntry(code)
+	local existing_data = LocalData.GetServerEntry(code) :: any
 
 	if not existing_data then
 		local success, result = pcall(function()
