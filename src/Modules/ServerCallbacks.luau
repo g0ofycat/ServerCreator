@@ -44,6 +44,8 @@ function ServerCallbacks.Init(): ()
 		existing.Description = msg.Description
 		existing.OwnerUserId = msg.OwnerUserId
 
+		LocalData.SetServerEntry(msg.Code, existing)
+
 		Config.SIGNALS.OnServerUpdated:Fire(msg)
 
 		print(`ServerUpdated(): { msg.Code }`)
@@ -58,6 +60,8 @@ function ServerCallbacks.Init(): ()
 
 		existing.PlayerCount = msg.Data.PlayerCount
 		existing.MaxPlayers = msg.Data.MaxPlayers
+
+		LocalData.SetServerEntry(msg.Code, existing)
 
 		Config.SIGNALS.OnPlayerCountChanged:Fire(msg)
 
