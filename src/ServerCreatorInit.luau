@@ -340,21 +340,6 @@ local function _teleportPlayer(
 		}
 	end
 
-	local TeleportData = LocalData.GetTeleportData()
-
-	if TeleportData then
-		local code = TeleportData.ReservationCode
-
-		if code and code == reservation_code then
-			return {
-				success = false,
-				data = nil,
-				error = "You're already in this server",
-				errorCode = Config.ERROR_CODES.INVALID_PARAMETERS
-			}
-		end
-	end
-
 	LocalData.TeleportDebounces[player.UserId] = true
 
 	local TeleportOptions = Instance.new("TeleportOptions")
@@ -937,6 +922,21 @@ function ServerCreator.JoinServer(player: Player, code: string, server_password:
 			error = "Invalid Server Code",
 			errorCode = Config.ERROR_CODES.INVALID_PARAMETERS
 		}
+	end
+
+	local TeleportData = LocalData.GetTeleportData()
+
+	if TeleportData then
+		local teleported_code = TeleportData.ReservationCode
+
+		if teleported_code == code then
+			return {
+				success = false,
+				data = nil,
+				error = "You're already in this server",
+				errorCode = Config.ERROR_CODES.INVALID_PARAMETERS
+			}
+		end
 	end
 
 	if server_data.ServerOptions then
