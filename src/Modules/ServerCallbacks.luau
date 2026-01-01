@@ -40,6 +40,7 @@ function ServerCallbacks.Init(): ()
 		local existing = LocalData.GetServerEntry(msg.Code)
 		if not existing then return end
 
+		existing.Code = msg.Code
 		existing.Name = msg.Name
 		existing.Description = msg.Description
 		existing.OwnerUserId = msg.OwnerUserId

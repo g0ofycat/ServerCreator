@@ -70,6 +70,7 @@ export type Result<T> = {
 
 export type ServerMessage = {
 	Type: string,
+	OldCode: string?, -- // ONLY for when the code updates
 	Code: string,
 	Timestamp: number,
 	Data: ServerMessageData?

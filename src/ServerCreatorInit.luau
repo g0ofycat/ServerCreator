@@ -612,6 +612,7 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 	task.spawn(function()
 		local message: Types.ServerMessage = {
 			Type = Config.MESSAGE_TYPES.ServerUpdated,
+			OldCode = code,
 			Code = new_code,
 			Timestamp = os.time(),
 
