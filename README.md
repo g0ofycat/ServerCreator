@@ -1,4 +1,4 @@
-# ServerCreator
+# ServerCreator (Roblox)
 
 A better alternative to public server lists, allowing for **server owners**, **names**, **descriptions**, and more
 
