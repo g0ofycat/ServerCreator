@@ -11,6 +11,7 @@ export type ServerData = {
 	Description: string,
 	PlayerCount: number,
 	MaxPlayers: number,
+	AveragePing: number,
 	CreatedAt: number,
 	LastUpdate: number,
 	ServerOptions: ServerOptions,
@@ -24,6 +25,7 @@ export type ServerListEntry = {
 	Description: string,
 	PlayerCount: number,
 	MaxPlayers: number,
+	AveragePing: number,
 	OwnerUserId: number,
 
 	IsPrivate: boolean,
@@ -57,6 +59,8 @@ export type PredicateOperators = "==" | "~=" | ">" | "<" | ">=" | "<=" | "*="
 
 export type PredicateFields = "Code" | "OwnerUserId" | "Name" | "Description" | "PlayerCount" | "ServerOptions.IsPrivate"
 
+export type UpdateServerSubTypes = "PingUpdate"
+
 --=======================
 -- // OPERATION TYPES
 --=======================
@@ -80,6 +84,7 @@ export type ServerMessageData =
 	ServerCreatedData
 | ServerUpdatedData
 | PlayerCountData
+| AveragePingData
 
 export type ServerCreatedData = {
 	OwnerUserId: number,
@@ -97,6 +102,7 @@ export type ServerUpdatedData = {
 	Name: string,
 	Description: string,
 	OwnerUserId: number,
+	AveragePing: number,
 
 	ServerOptions: ServerOptions
 }
@@ -104,6 +110,12 @@ export type ServerUpdatedData = {
 export type PlayerCountData = {
 	PlayerCount: number,
 	MaxPlayers: number
+}
+
+export type AveragePingData = {
+	SubType: UpdateServerSubTypes,
+	AveragePing: number,
+	ServerOptions: ServerOptions?
 }
 
 --=======================

@@ -6,15 +6,18 @@ local ServerLoader = {}
 -- // MODULES
 --=======================
 
+local PingHandler = require("./PingHandler")
+
 local LocalData = require("../Data/LocalData")
 
 local Config = require("../Utility/Config")
-
 local Types = require("../Utility/Types")
 
 --=======================
 -- // SERVICES
 --=======================
+
+local MessagingService = game:GetService("MessagingService")
 
 local MemoryStoreService = game:GetService("MemoryStoreService")
 
@@ -30,7 +33,7 @@ local ServerList = MemoryStoreService:GetSortedMap("ServerList")
 
 -- _processServerEntry(): Processes a single hashmap entry
 -- @param entry: The server entry to process
--- @return boolean: Whether the entry was valid and processed
+-- @return: boolean: Whether the entry was valid and processed
 local function _processServerEntry(entry: Types.ServerEntry): boolean
 	local server_data = entry.value
 
@@ -70,7 +73,7 @@ end
 --=======================
 
 -- LoadAllServers(): Loads all servers from MemoryStore
--- @return Types.Result<{Types.ServerData}>
+-- @return: Types.Result<{Types.ServerData}>
 function ServerLoader.LoadAllServers(): Types.Result<{ Types.ServerData }>
 	local success, entries = pcall(function()
 		return ServerList:GetRangeAsync(Enum.SortDirection.Ascending, Config.MEMORY_STORE.BatchSize)
@@ -113,7 +116,7 @@ end
 
 -- LoadServerByCode(): Loads a specific server by code
 -- @param code: The reservation code to load
--- @return Types.Result<Types.ServerData>
+-- @return: Types.Result<Types.ServerData>
 function ServerLoader.LoadServerByCode(code: string): Types.Result<Types.ServerData>
 	local entry = LocalData.GetServerEntry(code)
 
@@ -161,7 +164,7 @@ function ServerLoader.LoadServerByCode(code: string): Types.Result<Types.ServerD
 end
 
 -- RefreshServerList(): Refreshes the server list from MemoryStore
--- @return Types.Result<boolean>
+-- @return: Types.Result<boolean>
 function ServerLoader.RefreshServerList(): Types.Result<boolean>
 	local result = ServerLoader.LoadAllServers()
 
@@ -183,7 +186,7 @@ function ServerLoader.RefreshServerList(): Types.Result<boolean>
 end
 
 -- SyncWithMemoryStore(): Syncs local state with MemoryStore
--- @return Types.Result<number>: Returns count of servers synced
+-- @return: Types.Result<number>: Returns count of servers synced
 function ServerLoader.SyncWithMemoryStore(): Types.Result<number>
 	local result = ServerLoader.LoadAllServers()
 
@@ -207,7 +210,7 @@ function ServerLoader.SyncWithMemoryStore(): Types.Result<number>
 end
 
 -- GetServerList(): Gets lightweight server list for UI
--- @return Types.Result<{Types.ServerListEntry}>
+-- @return: Types.Result<{Types.ServerListEntry}>
 function ServerLoader.GetServerList(): Types.Result<{ Types.ServerListEntry }>
 	local entries: { Types.ServerListEntry } = {}
 
@@ -218,6 +221,7 @@ function ServerLoader.GetServerList(): Types.Result<{ Types.ServerListEntry }>
 			Description = server_data.Description,
 			PlayerCount = server_data.PlayerCount,
 			MaxPlayers = server_data.MaxPlayers,
+			AveragePing = PingHandler.GetAveragePing(),
 			OwnerUserId = server_data.OwnerUserId,
 
 			IsPrivate = server_data.ServerOptions.IsPrivate,
@@ -234,13 +238,13 @@ function ServerLoader.GetServerList(): Types.Result<{ Types.ServerListEntry }>
 end
 
 -- GetServerCount(): Gets the total number of loaded servers
--- @return number
+-- @return: number
 function ServerLoader.GetServerCount(): number
 	return LocalData.GetServerEntryCount()
 end
 
 -- GetTotalPlayerCount(): Gets total players across all servers
--- @return number
+-- @return: number
 function ServerLoader.GetTotalPlayerCount(): number
 	local total = 0
 
@@ -270,12 +274,68 @@ function ServerLoader.SyncInit(): ()
 	end)
 end
 
+-- InfoSyncInit(): Starts the info update loop for this server
+-- @note: CURRENT DATA SYNCED - AveragePing
+function ServerLoader.InfoSyncInit(): ()
+	local teleport_data = LocalData.GetTeleportData()
+	if not teleport_data then return end
+
+	local code = teleport_data.ReservationCode
+	if not code then return end
+
+	task.spawn(function()
+		while LocalData.SyncActive do
+			task.wait(Config.GENERAL.InfoUpdateRate)
+
+			local avg_ping = PingHandler.GetAveragePing()
+
+			pcall(function()
+				ServerList:UpdateAsync(code, function(server_data: Types.ServerData)
+					if not server_data then return nil end
+
+					server_data.AveragePing = avg_ping
+					server_data.LastUpdate = os.time()
+
+					return server_data :: any
+				end, Config.MEMORY_STORE.Expiration)
+			end)
+
+			local entry = LocalData.GetServerEntry(code)
+
+			if entry then
+				entry.AveragePing = avg_ping
+				entry.LastUpdate = os.time()
+
+				LocalData.SetServerEntry(code, entry)
+			end
+
+			task.spawn(function()
+				local message: Types.ServerMessage = {
+					Type = Config.MESSAGE_TYPES.ServerUpdated,
+					Code = code,
+					Timestamp = os.time(),
+
+					Data = {
+						SubType = "PingUpdate",
+						AveragePing = avg_ping,
+						ServerOptions = entry and entry.ServerOptions or nil
+					}
+				}
+
+				pcall(function()
+					MessagingService:PublishAsync("ServerUpdated", message)
+				end)
+			end)
+		end
+	end)
+end
+
 --=======================
 -- // UTILITY API
 --=======================
 
 -- CheckIfReserved(): Checks if the server is reserved
--- @return boolean: true if reserved, false otherwise
+-- @return: boolean: true if reserved, false otherwise
 function ServerLoader.CheckIfReserved(): boolean
 	local PlayerTeleportData = LocalData.GetTeleportData()
 

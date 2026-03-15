@@ -12,7 +12,7 @@ A better alternative to public server lists, allowing for **server owners**, **n
 -- @param server_name: The name of the server
 -- @param description: The description of the server
 -- @param player: The player to teleport (optional, if called from server)
--- @return Types.Result<string>
+-- @return: Types.Result<string>
 function ServerCreator.CreateServer(
 	user_id: number,
 	server_name: string,
@@ -27,7 +27,7 @@ function ServerCreator.CreateServer(
 -- JoinServer(): Teleport to a server
 -- @param player: The player to teleport
 -- @param code: UID of the reserved server
--- @return Types.Result<boolean>
+-- @return: Types.Result<boolean>
 function ServerCreator.JoinServer(player: Player, code: string): Types.Result<boolean>
 ```
 
@@ -37,7 +37,7 @@ function ServerCreator.JoinServer(player: Player, code: string): Types.Result<bo
 -- UpdateServer(): Updates an existing server's information
 -- @param code: The reservation code of the server to update
 -- @param updated_table: Table of updated data
--- @return Types.Result<Types.ServerData>
+-- @return: Types.Result<Types.ServerData>
 function ServerCreator.UpdateServer(code: string, updated_table: Types.ModifiableData): Types.Result<Types.ServerData>
 ```
 
@@ -46,7 +46,7 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 ```lua
 -- FilterServer(): Checks the servers that meet the predicate
 -- @param predicate: The predicates
--- @return Types.Result<{ string }>; A table of codes that meet the predicate
+-- @return: Types.Result<{ string }>; A table of codes that meet the predicate
 function ServerCreator.FilterServer(predicate: Types.PredicateType): Types.Result<{ string }>
 ```
 
@@ -56,7 +56,7 @@ function ServerCreator.FilterServer(predicate: Types.PredicateType): Types.Resul
 -- RemoveServer(): Removes a server from the system
 -- @param code: The reservation code of the server to remove
 -- @param user_id: The user id requesting removal (for permission check)
--- @return Types.Result<boolean>
+-- @return: Types.Result<boolean>
 function ServerCreator.RemoveServer(
 	code: string,
 	user_id: number
@@ -67,7 +67,7 @@ function ServerCreator.RemoveServer(
 
 ```lua
 -- GetServerList(): Gets lightweight server list for UI
--- @return Types.Result<{Types.ServerListEntry}>
+-- @return: Types.Result<{Types.ServerListEntry}>
 function ServerLoader.GetServerList(): Types.Result<{ Types.ServerListEntry }>
 ```
 

@@ -18,14 +18,13 @@ local MessagingService = game:GetService("MessagingService")
 -- // MODULES
 --=======================
 
+local PingHandler = require("./Modules/PingHandler")
 local ServerLoader = require("./Modules/ServerLoader")
-
 local ServerCallbacks = require("./Modules/ServerCallbacks")
 
 local LocalData = require("./Data/LocalData")
 
 local Config = require("./Utility/Config")
-
 local Types = require("./Utility/Types")
 
 --=======================
@@ -41,7 +40,7 @@ local ServerList = MemoryStoreService:GetSortedMap("ServerList")
 -- _resolvePath(): Resolves a path in a table
 -- @param table: The table to resolve the path in
 -- @param path: The path to resolve
--- @return any
+-- @return: any
 local function _resolvePath(table: any, path: string): any
 	local current = table
 
@@ -60,7 +59,7 @@ end
 -- @param user_id: The user id to validate
 -- @param server_name: The server name to validate
 -- @param description: The description to validate
--- @return Types.Result<boolean>
+-- @return: Types.Result<boolean>
 local function _validateParameters(
 	user_id: number,
 	server_name: string,
@@ -114,7 +113,7 @@ end
 -- @param text: The text to filter
 -- @param user_id: The user id for filtering context
 -- @param fallback: The fallback text if filtering fails
--- @return Types.Result<string>
+-- @return: Types.Result<string>
 local function _filterText(
 	text: string,
 	user_id: number,
@@ -159,7 +158,7 @@ local function _filterText(
 end
 
 -- _reserveServer(): Reserves a server using TeleportService
--- @return Types.Result<string>
+-- @return: Types.Result<string>
 local function _reserveServer(): Types.Result<string>
 	local success, code = pcall(function()
 		return TeleportService:ReserveServerAsync(Config.GENERAL.ServerPlaceId)
@@ -191,7 +190,7 @@ end
 -- @param filtered_description: The filtered description
 -- @param is_private?: Whether the server is private (optional)
 -- @param server_password?: The server password (optional)
--- @return Types.ServerData
+-- @return: Types.ServerData
 local function _initializeServerData(
 	code: string,
 	user_id: number,
@@ -209,6 +208,7 @@ local function _initializeServerData(
 		Description = filtered_description,
 		PlayerCount = 1,
 		MaxPlayers = Players.MaxPlayers,
+		AveragePing = PingHandler.GetAveragePing(),
 		CreatedAt = now,
 		LastUpdate = now,
 		ServerOptions = {
@@ -221,7 +221,7 @@ end
 -- _saveToMemoryStore(): Saves server data to MemoryStore
 -- @param code: The reservation code
 -- @param server_data: The server data to save
--- @return Types.Result<boolean>
+-- @return: Types.Result<boolean>
 local function _saveToMemoryStore(
 	code: string,
 	server_data: Types.ServerData
@@ -253,7 +253,7 @@ end
 
 -- _broadcastServerCreation(): Broadcasts new server to all servers via MessagingService
 -- @param server_data: The server data to broadcast
--- @return Types.Result<boolean>
+-- @return: Types.Result<boolean>
 local function _broadcastServerCreation(
 	server_data: Types.ServerData
 ): Types.Result<boolean>
@@ -270,6 +270,7 @@ local function _broadcastServerCreation(
 
 			PlayerCount = server_data.PlayerCount,
 			MaxPlayers = server_data.MaxPlayers,
+			AveragePing = server_data.AveragePing,
 
 			ServerOptions = {
 				IsPrivate = server_data.ServerOptions.IsPrivate,
@@ -307,7 +308,7 @@ end
 -- @param player: The player to teleport
 -- @param place_id: The place id to teleport to
 -- @param reservation_code: The reservation code
--- @return Types.Result<boolean>
+-- @return: Types.Result<boolean>
 local function _teleportPlayer(
 	player: Player,
 	place_id: number,
@@ -395,7 +396,7 @@ end
 -- @param server_name: The name of the server
 -- @param description: The description of the server
 -- @param player: The player to teleport (optional, if called from server)
--- @return Types.Result<string>
+-- @return: Types.Result<string>
 function ServerCreator.CreateServer(
 	user_id: number,
 	server_name: string,
@@ -515,7 +516,7 @@ end
 -- UpdateServer(): Updates an existing server's information
 -- @param code: The reservation code of the server to update
 -- @param updated_table: Table of updated data
--- @return Types.Result<Types.ServerData>
+-- @return: Types.Result<Types.ServerData>
 function ServerCreator.UpdateServer(code: string, updated_table: Types.ModifiableData): Types.Result<Types.ServerData>
 	local existing_data = LocalData.GetServerEntry(code) :: any
 
@@ -579,6 +580,7 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 		Description = filtered_description :: string,
 		PlayerCount = existing_data.PlayerCount,
 		MaxPlayers = existing_data.MaxPlayers,
+		AveragePing = PingHandler.GetAveragePing(),
 		CreatedAt = existing_data.CreatedAt,
 		LastUpdate = os.time(),
 
@@ -620,6 +622,7 @@ function ServerCreator.UpdateServer(code: string, updated_table: Types.Modifiabl
 				Name = filtered_name :: string,
 				Description = filtered_description :: string,
 				OwnerUserId = new_owner_id :: number,
+				AveragePing = updated_data.AveragePing,
 
 				ServerOptions = {
 					IsPrivate = updated_data.ServerOptions.IsPrivate,
@@ -644,7 +647,7 @@ end
 -- RemoveServer(): Removes a server from the system
 -- @param code: The reservation code of the server to remove
 -- @param user_id: The user id requesting removal (for permission check)
--- @return Types.Result<boolean>
+-- @return: Types.Result<boolean>
 function ServerCreator.RemoveServer(
 	code: string,
 	user_id: number
@@ -720,7 +723,7 @@ end
 
 -- ShutdownServer(): Shuts down a server
 -- @param code: The reservation code of the server to shutdown
--- @return Types.Result<boolean>
+-- @return: Types.Result<boolean>
 function ServerCreator.ShutdownServer(code: string): Types.Result<boolean>
 	local existing_data = LocalData.GetServerEntry(code) :: any
 
@@ -784,7 +787,7 @@ end
 
 -- IncrementPlayerCount(): Increments the player count for a server
 -- @param code: The reservation code of the server
--- @return Types.Result<number>
+-- @return: Types.Result<number>
 function ServerCreator.IncrementPlayerCount(
 	code: string
 ): Types.Result<number>
@@ -843,7 +846,7 @@ end
 
 -- DecrementPlayerCount(): Decrements the player count for a server
 -- @param code: The reservation code of the server
--- @return Types.Result<number>
+-- @return: Types.Result<number>
 function ServerCreator.DecrementPlayerCount(code: string): Types.Result<number>
 	local success, result = pcall(function()
 		return ServerList:UpdateAsync(code, function(server_data: Types.ServerData)
@@ -912,7 +915,7 @@ end
 -- @param player: The player to teleport
 -- @param code: UID of the reserved server
 -- @param server_password: The password for the server (if required)
--- @return Types.Result<boolean>
+-- @return: Types.Result<boolean>
 function ServerCreator.JoinServer(player: Player, code: string, server_password: string?): Types.Result<boolean>
 	local server_data = LocalData.GetServerEntry(code)
 
@@ -981,7 +984,7 @@ end
 
 -- FilterServer(): Checks the servers that meet the predicate
 -- @param predicate: The predicates
--- @return Types.Result<{ string }>; A table of codes that meet the predicate
+-- @return: Types.Result<{ string }>; A table of codes that meet the predicate
 function ServerCreator.FilterServer(predicate: Types.PredicateType): Types.Result<{ string }>
 	if predicate.value == nil or predicate.value == "" then
 		local codes = {}
@@ -1093,6 +1096,7 @@ ServerCallbacks.Init()
 ServerLoader.LoadAllServers()
 
 ServerLoader.SyncInit()
+ServerLoader.InfoSyncInit()
 
 ServerCreator.AttachListeners()
 

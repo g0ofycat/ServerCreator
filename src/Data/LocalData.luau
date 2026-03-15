@@ -31,7 +31,7 @@ LocalData.SyncActive = false
 
 -- IsDebounced(): Checks if the user is debounced
 -- @param user_id: The user id to check
--- @return boolean
+-- @return: boolean
 function LocalData.IsDebounced(user_id: number): boolean
 	return LocalData.Debounces[user_id] == true
 end
@@ -58,7 +58,7 @@ end
 
 -- GetServerEntry(): Get server entry
 -- @param code: The code of the server entry to get
--- @return Types.ServerData?
+-- @return: Types.ServerData?
 function LocalData.GetServerEntry(code: string): Types.ServerData?
 	return LocalData.ServerEntries[code]
 end
@@ -86,7 +86,7 @@ end
 --=======================
 
 -- GetServerEntryCount(): Get the number of server entries
--- @return number
+-- @return: number
 function LocalData.GetServerEntryCount(): number
 	local count = 0
 
@@ -98,7 +98,7 @@ function LocalData.GetServerEntryCount(): number
 end
 
 -- GetDebounceCount(): Get the number of active debounces
--- @return number
+-- @return: number
 function LocalData.GetDebounceCount(): number
 	local count = 0
 
@@ -111,7 +111,7 @@ end
 
 -- IsPlayerInServer(): Checks if a user id is in the current server
 -- @param user_id: The user id to check
--- @return boolean
+-- @return: boolean
 function LocalData.IsPlayerInServer(user_id: number): boolean
 	for _, player in Players:GetPlayers() do
 		if player.UserId == user_id then
@@ -123,13 +123,13 @@ function LocalData.IsPlayerInServer(user_id: number): boolean
 end
 
 -- GetFirstPlayer(): Gets the first player
--- @return Player
+-- @return: Player
 function LocalData.GetFirstPlayer(): Player
 	return Players:GetPlayers()[1] or Players.PlayerAdded:Wait()
 end
 
 -- GetTeleportData(): Get teleport data
--- @return Types.TeleportDataType
+-- @return: Types.TeleportDataType
 function LocalData.GetTeleportData(): Types.TeleportDataType
 	local FirstPlayer = LocalData.GetFirstPlayer()
 	local TeleportData = FirstPlayer:GetJoinData().TeleportData

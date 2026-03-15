@@ -19,6 +19,7 @@ return {
 		DebounceTime = 10, -- // number: TIME IN SECONDS FOR PLAYER SERVER CREATION DEBOUNCE
 		MaxServerNameLength = 50, -- // number: MAXIMUM LENGTH OF SERVER NAME
 		MaxDescriptionLength = 200, -- // number: MAXIMUM LENGTH OF SERVER DESCRIPTION
+		InfoUpdateRate = 30, -- // number: TIME FOR MISC DATA (E.X. AveragePing) TO GET UPDATED
 
 		TeleportDebounce = 5, -- // number: TELEPORT DEBOUNCE
 

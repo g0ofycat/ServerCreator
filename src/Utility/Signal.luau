@@ -37,7 +37,7 @@ end
 
 -- Connect(): Connect a function
 -- @param fn: The function to connect
--- @return Connection
+-- @return: Connection
 function Signal:Connect(fn: (...any) -> ()): Connection
 	if type(fn) ~= "function" then
 		error("Connect(): Expected function", 2)
@@ -71,7 +71,7 @@ end
 
 -- Once(): Connect a one-time listener
 -- @param fn: The function to call once
--- @return Connection
+-- @return: Connection
 function Signal:Once(fn: (...any) -> ()): Connection
 	local conn: Connection
 
@@ -98,7 +98,7 @@ function Signal:Fire(...: any): ()
 end
 
 -- Wait(): Yield until this Signal fires
--- @return ...any
+-- @return: ...any
 function Signal:Wait(): ...any
 	local co = coroutine.running()
 
